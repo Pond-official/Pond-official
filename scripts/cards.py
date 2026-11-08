@@ -141,10 +141,10 @@ def header(cfg: dict, P: dict) -> str:
     begin = end
     while begin > 0 and top[begin - 1] == "\u2588":
         begin -= 1
-    pxs = 1.32
+    pxs = 1.58
     sw, sh = sprite.W * pxs, sprite.HEIGHT * pxs
     sx = bt.x + (begin + end + 1) / 2 * bt.cw - sw / 2
-    sy = by0 + 11 - sh
+    sy = by0 + 4 - 39 * pxs   # her chin clears the letters, her shoulders hide behind them
     hop = loop_move(c, "hop", 7.0, [(0, "translateY(0)"), (5.0, "translateY(0)"), (5.1, "translateY(-7px)"),
                                     (5.3, "translateY(0)"), (5.5, "translateY(-3px)"), (5.7, "translateY(0)"),
                                     (7.0, "translateY(0)")])
@@ -218,14 +218,25 @@ def header(cfg: dict, P: dict) -> str:
 
 # ----------------------------------------------------------------- neofetch
 
-def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 2.35) -> None:
-    """The cat girl in a small box: she breathes, blinks, and says nya~."""
+def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 2.75) -> None:
+    """Miku in a small box: a portrait disc, a breath, a blink, and a nya~."""
     T = 8.0
     c.add(f'<rect x="{bx:g}" y="{by:g}" width="{bw:g}" height="{bh:g}" rx="16" fill="{P["mantle"]}" '
           f'stroke="{P["surface0"]}"/>')
     sw, sh = sprite.W * px, sprite.HEIGHT * px
     sx = bx + (bw - sw) / 2
-    sy = by + (bh - sh) / 2 - 8
+    sy = by + (bh - sh) / 2 - 2
+
+    # a disc behind her, so the white shirt has something to sit on
+    # a soft violet wash, so the white shirt has something to sit against
+    gid = c.uid("cv")
+    c.define(gid, f'<linearGradient id="{gid}" x1="0" y1="0" x2="0" y2="1">'
+                  f'<stop offset="0" stop-color="{P["accent2"]}" stop-opacity=".08"/>'
+                  f'<stop offset=".62" stop-color="{P["accent2"]}" stop-opacity=".20"/>'
+                  f'<stop offset="1" stop-color="{P["accent"]}" stop-opacity=".30"/>'
+                  f'</linearGradient>')
+    c.add(f'<rect x="{bx:g}" y="{by:g}" width="{bw:g}" height="{bh:g}" rx="16" fill="url(#{gid})"/>')
+
     c.style("@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}"
             ".bob{animation:bob 4.6s ease-in-out infinite}", key="bob")
 
@@ -445,7 +456,7 @@ def footer(cfg: dict, P: dict) -> str:
     t = Term(c, P, ox, oy, size=14, lh=1.45)
     c.add(t.markup(0, 0, prompt(cfg) + "exit")[0])
 
-    pxf = 1.15
+    pxf = 1.3
     sfw = sprite.W * pxf
     fx = ox + 4
     fy = oy + line * 2.4
