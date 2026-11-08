@@ -1,36 +1,14 @@
-"""ASCII art: the frog, its moods, and the big title banner."""
+"""Text art: the big title banner and the z's that drift off a sleeper."""
 from __future__ import annotations
 
 import pyfiglet
 
-# The whole frog is plain monospace, so a mood is just a different face row.
-FROG_BODY = [
-    "   @..@   ",
-    "  (----)  ",
-    " ( >__< ) ",
-    " ^^ ~~ ^^ ",
-]
-
-FROG_FACES = {
-    "idle": "   @..@   ",
-    "blink": "   @--@   ",
-    "happy": "   @^^@   ",
-}
-
-# Bubbles rising out of the water: (row offset, column offset, character)
-BUBBLES = [
-    [(0, 7, "o")],
-    [(0, 7, "o"), (-1, 8, "o")],
-    [(0, 7, "o"), (-1, 8, "o"), (-2, 9, ".")],
-    [(-1, 8, "o"), (-2, 9, ".")],
-]
-
-# z's drifting off a sleeping frog
+# z's drifting up: (row offset, column offset, character)
 SLEEP_Z = [
-    [(0, 8, "z")],
-    [(0, 8, "z"), (-1, 9, "Z")],
-    [(0, 8, "z"), (-1, 9, "Z"), (-2, 10, "z")],
-    [(-1, 9, "Z"), (-2, 10, "z")],
+    [(0, 0, "z")],
+    [(0, 0, "z"), (-1, 2, "Z")],
+    [(0, 0, "z"), (-1, 2, "Z"), (-2, 4, "z")],
+    [(-1, 2, "Z"), (-2, 4, "z")],
 ]
 
 
