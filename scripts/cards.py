@@ -141,10 +141,10 @@ def header(cfg: dict, P: dict) -> str:
     begin = end
     while begin > 0 and top[begin - 1] == "\u2588":
         begin -= 1
-    pxs = 1.58
+    pxs = 1.7
     sw, sh = sprite.W * pxs, sprite.HEIGHT * pxs
     sx = bt.x + (begin + end + 1) / 2 * bt.cw - sw / 2
-    sy = by0 + 4 - 39 * pxs   # her chin clears the letters, her shoulders hide behind them
+    sy = by0 + 2 - 43 * pxs   # her face clears the letters, her chest hides behind them
     hop = loop_move(c, "hop", 7.0, [(0, "translateY(0)"), (5.0, "translateY(0)"), (5.1, "translateY(-7px)"),
                                     (5.3, "translateY(0)"), (5.5, "translateY(-3px)"), (5.7, "translateY(0)"),
                                     (7.0, "translateY(0)")])

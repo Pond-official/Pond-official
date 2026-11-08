@@ -1,63 +1,71 @@
-"""A pixel-art Hatsune Miku, drawn as coloured cells.
+"""A pixel-art cat girl, drawn as coloured cells.
+
+Reference: long honey-blonde hair with a straight fringe, big fluffy cat ears,
+turquoise eyes, an oversized white shirt.
 
 Everything is generated geometrically instead of hand-counted rows: the head is
-an ellipse, the pigtails are tubes swept along bezier curves, the headset is an
-arc plus two discs. Hand-written rows kept drifting into a square face, and a
-sweep gives a tail that actually tapers and curls.
+an ellipse, the ears are triangles, the long hair is a tube swept along a bezier
+so it tapers where it meets the shoulder. Hand-written rows kept drifting into a
+square face.
 
-What makes her recognisable: teal twin tails, a grey headset with a glowing
-ring, a white shirt and a teal tie, cyan eyes. Every symbol maps to a palette
-key, so one drawing recolours itself for the light and the dark card. Blinking
-is a small overlay (`render_lid`) rather than a second full sprite.
+Every symbol maps to a palette key, so one drawing recolours itself for the
+light and the dark card. Blinking is a small overlay (`render_lid`) rather than
+a second full sprite.
 """
 from __future__ import annotations
+import math
+
 W, H = 72, 60
 
 # . none  h hair  t hair light  u hair dark  S skin  s skin shade
-# E ink   K iris  W white    M mouth  B blush  C headset  c cloth light  G tie
+# E ink   K iris  W white    M mouth  B blush  c cloth light
 EYE = [
-    "..EEEEEE..",
-    ".EEEEEEEE.",
-    "EEKKKKKKEE",
-    "EKWWKKKKKE",
-    "EKWWKKKKWE",
-    "EKKKKKKKWE",
-    "EKKKKKKKKE",
-    "EKKKKKKKKE",
-    ".EKKKKKKE.",
-    "..EKKKKE..",
-    "...EEEE...",
+    "...EEEEE...",
+    "..EEEEEEE..",
+    ".EIIIIIIIE.",
+    "EIIKKKKKIIE",
+    "EIIKKKKKIIE",
+    "EIKWWKKKIIE",
+    "EIKWWKKKIIE",
+    "EIIKEEEKKII",
+    "EIIKEEEKKII",
+    "EIIKEEEKKII",
+    ".EIKKKKKIE.",
+    "..EILLLIE..",
+    "...EEEEE...",
 ]
-EYE_AT = ((25, 21), (37, 21))
-EYE_W, EYE_H = 10, 11
+EYE_AT = ((24, 21), (37, 21))
+EYE_W, EYE_H = 11, 13
 
 LID = [
-    "..........",
-    "..........",
-    "..........",
-    "..........",
-    "..........",
-    ".EE....EE.",
-    "..EE..EE..",
-    "....EE....",
-    "..........",
-    "..........",
-    "..........",
+    "...........",
+    "...........",
+    "...........",
+    "...........",
+    "...........",
+    "...........",
+    ".EE.....EE.",
+    "..EE...EE..",
+    "....EEE....",
+    "...........",
+    "...........",
+    "...........",
+    "...........",
 ]
 
-# omega mouth: three peaks, two dips
+# a gentle closed-mouth smile
 MOUTH = [
-    "M..M..M",
-    ".MM.MM.",
+    "M...M",
+    ".MMM.",
 ]
-MOUTH_AT = (33, 34)
+MOUTH_AT = (34, 36)
 
 BLUSH = [
     ".BBB.",
     "BBBBB",
     ".BBB.",
 ]
-BLUSH_AT = ((24, 33), (43, 33))
+BLUSH_AT = ((25, 34), (42, 34))
 
 SYMBOLS = {
     "h": "hair",
@@ -66,27 +74,43 @@ SYMBOLS = {
     "S": "skin",
     "s": "skin2",
     "E": "ink",
+    "I": "pupil",
     "K": "iris",
+    "L": "iris2",
     "W": "eye_white",
     "M": "mouth",
     "B": "blush",
-    "C": "cloth",
     "c": "cloth2",
-    "G": "bell",
 }
 
-CX, CY = 36.0, 22.8
-HEAD = (CX, CY, 18.2, 16.0)       # the hair mass
-FACE = (CX, 26.2, 15.0, 13.0)     # the skin oval
+CX = 36.0
+HEAD = (CX, 23.5, 18.0, 16.0)
+FACE = (CX, 26.6, 14.2, 13.2)
 
-# tied high at the back of the head, then falling past the shoulder
-TAIL_L = ((20.0, 15.0), (6.0, 20.0), (3.5, 43.0), (12.0, 58.0))
-TAIL_R = tuple((W - 1 - x, y) for x, y in TAIL_L)
+# long hair falling on both sides, tapering to a soft end
+HAIR_L = ((20.0, 15.0), (11.0, 30.0), (11.5, 47.0), (15.0, 58.0))
+HAIR_R = tuple((W - 1 - x, y) for x, y in HAIR_L)
+
+EAR_L = ((11.0, 2.5), (6.0, 18.0), (28.0, 13.0))
+EAR_R = tuple((W - 1 - x, y) for x, y in EAR_L)
 
 
 def _inside(x: float, y: float, box) -> bool:
     cx, cy, rx, ry = box
     return ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1.0
+
+
+def _tri(x: float, y: float, a, b, c) -> bool:
+    def side(p, q, r):
+        return (p[0] - r[0]) * (q[1] - r[1]) - (q[0] - r[0]) * (p[1] - r[1])
+    d1, d2, d3 = side((x, y), a, b), side((x, y), b, c), side((x, y), c, a)
+    return not ((d1 < 0 or d2 < 0 or d3 < 0) and (d1 > 0 or d2 > 0 or d3 > 0))
+
+
+def _shrink(tri, t: float):
+    cx = sum(p[0] for p in tri) / 3
+    cy = sum(p[1] for p in tri) / 3
+    return tuple((cx + (p[0] - cx) * t, cy + (p[1] - cy) * t) for p in tri)
 
 
 def _bez(t: float, p):
@@ -122,142 +146,111 @@ def _stamp(grid, art: list[str], x: int, y: int) -> None:
                 grid[y + dy][x + dx] = ch
 
 
-def _tails(grid) -> None:
-    for curve in (TAIL_L, TAIL_R):
-        out = -1.1 if curve is TAIL_L else 1.1   # the shaded edge faces inwards
-        _tube(grid, curve, 6.2, 3.4, "u", shift=(out, 0.9))
-        _tube(grid, curve, 5.3, 2.6, "h")
-        _tube(grid, curve, 2.0, 1.2, "t", shift=(-out * 2.0, -1.6), span=(0.10, 0.72))
-
-
-def _headset(grid) -> None:
-    """A band over the crown and a disc on each side of the head."""
-    R, cy = 18.4, 25.0
-    for y in range(H):
-        for x in range(W):
-            d = ((x + 0.5 - CX) ** 2 + (y + 0.5 - cy) ** 2) ** 0.5
-            if abs(d - R) <= 1.15 and y + 0.5 < cy - 2:
-                grid[y][x] = "C"
-    for cxp in (CX - R, CX + R):
+def _ears(grid) -> None:
+    for tri in (EAR_L, EAR_R):
         for y in range(H):
             for x in range(W):
-                d = ((x + 0.5 - cxp) ** 2 + (y + 0.5 - cy) ** 2) ** 0.5
-                if 1.9 < d <= 2.8:
-                    grid[y][x] = "G"
-                elif d <= 1.9:
-                    grid[y][x] = "c"
-                elif d <= 4.3:
-                    grid[y][x] = "C"
+                if _tri(x + 0.5, y + 0.5, *tri):
+                    grid[y][x] = "h"
+    # the inside of the ear is skin, so it reads as fur
+    for tri in (EAR_L, EAR_R):
+        inner = _shrink(tri, 0.5)
+        for y in range(H):
+            for x in range(W):
+                if _tri(x + 0.5, y + 0.5, *inner) and y < 15:
+                    grid[y][x] = "S"
 
 
 def _build() -> list[list[str]]:
     grid = [["."] * W for _ in range(H)]
 
-    _tails(grid)
+    # ---- the long hair first, so the head sits on top of it
+    for curve in (HAIR_L, HAIR_R):
+        out = -1.4 if curve is HAIR_L else 1.4
+        _tube(grid, curve, 5.8, 3.6, "u", shift=(out, 0.6))
+        _tube(grid, curve, 5.0, 2.9, "h")
+        _tube(grid, curve, 1.1, 0.8, "t", shift=(-out * 1.9, -1.4), span=(0.06, 0.60))
 
-    # ---- head
+    # ---- head, then the ears on top of it
     for y in range(H):
         for x in range(W):
             if _inside(x + 0.5, y + 0.5, HEAD):
                 grid[y][x] = "h"
+    _ears(grid)
+
     # ---- face
     for y in range(H):
         for x in range(W):
             if _inside(x + 0.5, y + 0.5, FACE):
                 grid[y][x] = "S"
-    # ---- straight fringe, plus the locks that hang past her cheeks
+
+    # ---- a straight fringe with a little wave, plus the locks in front of the ears
     for y in range(H):
         for x in range(W):
             px, py = x + 0.5, y + 0.5
             if not _inside(px, py, FACE):
                 continue
-            import math
-            fringe = 17.4 + 2.4 * (0.5 + 0.5 * math.cos((px - CX) * 2 * math.pi / 9.0))
+            fringe = 20.4 + 0.7 * math.sin((px - CX) / 2.3)
             k = max(0.0, 1 - ((py - FACE[1]) / FACE[3]) ** 2) ** 0.3
             if py <= fringe:
                 grid[y][x] = "h"
-            elif abs(px - CX) >= 13.4 * k:
-                grid[y][x] = "u"
-    # strand seams: two at the sides of the fringe, one down the middle
-    for y in range(12, 21):
-        for x in (int(CX - 13), int(CX + 12)):
-            if grid[y][x] == "h":
-                grid[y][x] = "u"
-    for x0 in (29, 43):
-        for y in range(13, 20):
-            if grid[y][x0] == "h":
-                grid[y][x0] = "u"
+            elif abs(px - CX) >= 13.6 * k:
+                grid[y][x] = "h"
 
-    # ---- a light arc along the top of the head
+    # ---- seams in the fringe, and a light band across the crown
+
     cx, cy, rx, ry = HEAD
     for y in range(H):
         for x in range(W):
             if grid[y][x] != "h":
                 continue
             r = (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2) ** 0.5
-            if 0.74 <= r <= 0.86 and y < 18:
+            if 0.72 <= r <= 0.88 and y < 19:
                 grid[y][x] = "t"
 
-    # ---- the ahoge
-    for x, y in [(37, 7), (38, 7), (37, 6), (38, 6), (38, 5), (39, 5), (39, 4),
-                 (40, 3), (40, 2), (41, 2), (41, 1), (42, 1)]:
-        grid[y][x] = "h"
-    grid[2][42] = "t"
-
-    # the fringe casts a shadow onto the forehead, and the head is lit from the left
-    for y in range(12, 24):
-        for x in range(W):
-            if grid[y][x] == "S":
-                above = grid[y - 1][x] if y else "."
-                if above in "htu":
-                    grid[y][x] = "s"
+    # ---- light on the left, shade on the right, so the hair is not flat
     for y in range(H):
-        for x in range(47, 53):
+        for x in range(48, 56):
             if grid[y][x] == "h":
                 grid[y][x] = "u"
-    for y in range(10, 30):
-        for x in range(19, 23):
-            if grid[y][x] == "h":
-                grid[y][x] = "t"
 
-    _headset(grid)
+    # ---- the fringe casts a shadow on the forehead
+    for y in range(9, 24):
+        for x in range(W):
+            if grid[y][x] == "S":
+                above = grid[y - 1][x]
+                if above in "htu":
+                    grid[y][x] = "s"
+
+    # ---- neck and an oversized white shirt (before the face, or they eat the mouth)
+    for y in range(41, H):
+        hw = min(21.0, 8.0 + (y - 41) * 1.3)
+        for x in range(W):
+            if abs(x + 0.5 - CX) <= hw:
+                grid[y][x] = "W"
+    for y in range(38, 45):
+        for x in range(32, 41):
+            grid[y][x] = "S"
+    # a shadow under the chin, otherwise the jaw melts into the white shirt
+    for x in range(31, 42):
+        if grid[38][x] == "S":
+            grid[38][x] = "s"
+    # collar seam and the shoulder line, otherwise a white shirt is a white blob
+    for y in range(42, H):
+        hw = min(21.0, 8.0 + (y - 42) * 1.3)
+        for x in range(W):
+            if abs(abs(x + 0.5 - CX) - hw) <= 1.0 and grid[y][x] == "W":
+                grid[y][x] = "c"
+    for y in (43, 44):
+        for x in range(31, 42):
+            if grid[y][x] == "W":
+                grid[y][x] = "c"
 
     _stamp(grid, EYE, *EYE_AT[0])
     _stamp(grid, EYE, *EYE_AT[1])
     _stamp(grid, MOUTH, *MOUTH_AT)
     for x, y in BLUSH_AT:
         _stamp(grid, BLUSH, x, y)
-
-    # ---- neck, shirt, collar, tie
-    for y in range(40, H):
-        hw = min(20.5, 8.0 + (y - 40) * 1.5)
-        for x in range(W):
-            if abs(x + 0.5 - CX) <= hw:
-                grid[y][x] = "W"
-    for y in range(36, 43):
-        for x in range(32, 40):
-            grid[y][x] = "S"
-    # the shoulder seam and the collar edge, so the white shirt has a shape
-    for y in range(41, H):
-        hw = min(20.5, 8.0 + (y - 41) * 1.5)
-        for x in range(W):
-            if abs(abs(x + 0.5 - CX) - hw) <= 1.0 and grid[y][x] == "W":
-                grid[y][x] = "c"
-    for y in (42, 43):
-        for x in list(range(31, 36)) + list(range(37, 42)):
-            if grid[y][x] == "W":
-                grid[y][x] = "c"
-    # the tie: knot, blade, point
-    for x in range(34, 39):
-        grid[43][x] = "G"
-    for y in range(44, 49):
-        for x in range(35, 38):
-            grid[y][x] = "G"
-    for x in range(34, 39):
-        grid[49][x] = "G"
-    for x in range(35, 38):
-        grid[50][x] = "G"
-    grid[51][36] = "G"
     return grid
 
 
