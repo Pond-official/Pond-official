@@ -13,30 +13,29 @@ from __future__ import annotations
 
 from term import Term
 
-# Ears, cheeks, eyes, muzzle, whiskers, and a small body. Fixed width.
+# The classic internet cat, kept character for character: `==` are the whiskers,
+# `^` the nose, `(` `)` the paws. Rows are centred on the widest one, otherwise
+# the head sits left of the body.
 ROWS = [
-    r"          /\    /\      ",
-    r"         /  \__/  \     ",
-    r"        (          )    ",
-    r"    ---(   o    o   )---",
-    r"    ---(      ^     )---",
-    r"        \   \_/    /    ",
-    r"         \________/     ",
-    r"          /|      |\    ",
-    r"         ( |      | )   ",
-    r"          \|______|/    ",
+    "     /\\_____/\\   ",
+    "   /  o   o  \\   ",
+    "  ( ==  ^  == )  ",
+    "   )         (   ",
+    "  (           )  ",
+    " ( (  )   (  ) ) ",
+    "(__(__)___(__)__)",
 ]
 
 COLS = max(len(r) for r in ROWS)
 LINES = len(ROWS)
-LH = 1.26                       # line height, in em
-EYE_ROW = 3
-BODY = 7                        # rows 0..6 are the head; 7.. are the legs                     # the row the eyes sit on
+LH = 1.3                       # line height, in em
+EYE_ROW = 1                     # the row the eyes sit on
+BODY = 3                        # rows 0..2 are the head, the rest is the body
 
 # character -> palette key
 INK = {
-    "/": "fg2", "\\": "fg2", "(": "fg2", ")": "fg2", "|": "fg2", "_": "fg2",
-    "o": "iris", "^": "mouth", "-": "overlay1",
+    "/": "fg2", "\\": "fg2", "(": "fg2", ")": "fg2", "_": "fg2",
+    "o": "iris", "^": "mouth", "=": "overlay1", "-": "overlay1",
 }
 
 

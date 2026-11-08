@@ -142,10 +142,10 @@ def header(cfg: dict, P: dict) -> str:
     while begin > 0 and top[begin - 1] == "\u2588":
         begin -= 1
     avail = by0 - (M + BAR_H) - 10          # the room above the word
-    cs = min(size * 0.55, (avail + 14) / (sprite.BODY * sprite.LH))
+    cs = min(size * 0.72, (avail + 14) / (sprite.BODY * sprite.LH))
     sw = sprite.COLS * cs * 0.6
     sx = bt.x + (begin + end + 1) / 2 * bt.cw - sw / 2
-    sy = by0 + 17 - sprite.BODY * cs * sprite.LH  # the chin tucks behind the word
+    sy = by0 + 4 - sprite.BODY * cs * sprite.LH   # chin just kisses the word
     hop = loop_move(c, "hop", 7.0, [(0, "translateY(0)"), (5.0, "translateY(0)"), (5.1, "translateY(-7px)"),
                                     (5.3, "translateY(0)"), (5.5, "translateY(-3px)"), (5.7, "translateY(0)"),
                                     (7.0, "translateY(0)")])
@@ -217,7 +217,7 @@ def header(cfg: dict, P: dict) -> str:
 
 # ----------------------------------------------------------------- neofetch
 
-def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 14.0) -> None:
+def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 19.0) -> None:
     """Miku in a small box: a portrait disc, a breath, a blink, and a nya~."""
     T = 8.0
     c.add(f'<rect x="{bx:g}" y="{by:g}" width="{bw:g}" height="{bh:g}" rx="16" fill="{P["mantle"]}" '
@@ -453,7 +453,7 @@ def footer(cfg: dict, P: dict) -> str:
     t = Term(c, P, ox, oy, size=14, lh=1.45)
     c.add(t.markup(0, 0, prompt(cfg) + "exit")[0])
 
-    pxf = 8.0
+    pxf = 9.5
     sfw, sfh = sprite.measure(pxf)
     fx = ox + 8
     fy = oy + line * 2.2
