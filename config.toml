@@ -1,0 +1,92 @@
+# ───────────────────────────────────────────────────────────────────────
+#  Pond 的主页设置
+#
+#  改完这个文件并提交，GitHub Actions 会自动重画 assets/ 与 profile/ 里的
+#  所有图片（约一分钟）。数据卡片每天也会自己更新一次。
+#
+#  上色写法：[jade]青色[/]   [amber b]橙色粗体[/]   要显示 [ 本身就写 [[
+#  可用颜色：jade jade2 amber amber2 blue plum rose text subtext0
+#            overlay1 overlay0 surface0 surface2
+# ───────────────────────────────────────────────────────────────────────
+
+[profile]
+github = "Pond-official"   # 用来读取统计数据的账号
+user = "pond"              # 终端提示符里显示的名字
+banner = "POND"            # 顶部大字，只能用英文字母和数字
+
+# ── 顶部终端 ────────────────────────────────────────────────────────────
+[header]
+title = "pond@dmu: ~ — zsh"
+alt = "pond@dmu terminal banner"
+max_size = 28
+last_login = "Last login: {date} on ttys001"
+subtitle = "[overlay1]大连医科大学[/] [overlay0]·[/] [jade]E大医[/] [overlay0]·[/] [amber b]Hide yourself in the dark[/]"
+
+# 下面几条命令会轮流「打字」出来，output 是命令的输出（可以多行）
+[[header.commands]]
+cmd = "whoami"
+output = ["Pond [overlay0]·[/] 大连医科大学 [overlay0]·[/] [jade]TypeScript / Python[/]"]
+
+[[header.commands]]
+cmd = "cat ~/now.md"
+output = ["[amber]building[/] E大医 — 教务查询 [overlay0]+[/] 上课提醒", "[overlay1]# 一个想帮同学少点几下的小工具[/]"]
+
+[[header.commands]]
+cmd = 'echo "$MOOD"'
+output = ["Hide yourself in the dark. [overlay1]# 来自 GitHub 简介[/]"]
+
+[[header.commands]]
+cmd = 'git commit -m "又往前挪了一点"'
+output = ["[master 7c1e9a2] 又往前挪了一点", " 1 file changed, 1 insertion(+), 3 deletions(-)"]
+
+# ── neofetch 卡片（统计数据自动填，这里只写固定的介绍）────────────────────
+[neofetch]
+about = [
+  ["name", "Pond"],
+  ["base", "Dalian Medical University [overlay0]·[/] 大连"],
+  ["stack", "TypeScript [overlay0]·[/] Python [overlay0]·[/] Web"],
+  ["now", "[jade]E大医[/] [overlay1]教务查询 + 上课提醒[/]"],
+  ["mail", "Pond_official@petalmail.com"],
+]
+# 统计语言占比时跳过的仓库（主页自己的生成脚本不算）
+exclude_repos = ["Pond-official"]
+
+# ── 技能（ls 出来的「文件」，第二项是颜色）────────────────────────────────
+[stack]
+files = [
+  ["app.ts", "jade"],
+  ["api.ts", "blue"],
+  ["query.py", "amber"],
+  ["index.html", "rose"],
+  ["style.css", "plum"],
+  ["build.sh", "overlay1"],
+]
+
+# ── 结尾 ────────────────────────────────────────────────────────────────
+[footer]
+title = "logout"
+alt = "谢谢光临 · see you next time"
+lines = [
+  "[jade b]谢谢光临[/]  see you next time",
+  "Hide yourself in the dark [overlay1]·[/] but leave a light on",
+  "[overlay0]# updated {date} · drawn by python3[/]",
+]
+
+# ── 徽章 ────────────────────────────────────────────────────────────────
+[[badges]]
+name = "edayi"
+label = "project"
+value = "E大医"
+color = "jade"
+
+[[badges]]
+name = "agreement"
+label = "agreement"
+value = "用户协议"
+color = "amber"
+
+[[badges]]
+name = "dmu"
+label = "base"
+value = "DMU · 大连"
+color = "blue"

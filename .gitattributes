@@ -1,0 +1,7 @@
+* text=auto eol=lf
+
+# 图片由 scripts/generate.py 生成
+assets/*.svg linguist-generated=true
+profile/*.svg linguist-generated=true
+# 生成脚本本身不算进语言统计
+scripts/** linguist-vendored=true
