@@ -120,7 +120,7 @@ def header(cfg: dict, P: dict) -> str:
     # ---- banner: solid blocks in one path, one gradient, no seams
     bt = Term(c, P, 0, y_banner, size=size, lh=lh)
     bt.x = (W - bw * bt.cw) / 2
-    stops = [P["fg3"], P["mute"], P["fg2"], P["fg"]]
+    stops = [P["accent2"], P["accent"], P["fg2"], P["fg"]]
     grad = c.uid("bg")
     c.define(grad, f'<linearGradient id="{grad}" gradientUnits="userSpaceOnUse" x1="{bt.x:.0f}" '
                    f'x2="{bt.x + bw * bt.cw:.0f}" y1="0" y2="0">' +
@@ -130,7 +130,7 @@ def header(cfg: dict, P: dict) -> str:
     for r, row in enumerate(rows):
         for col, ch in enumerate(row):
             if ch not in " \u2588":
-                shade.append(bt.text(col, r, ch, mix(ramp(stops, col / max(1, bw - 1)), P["base"], 0.5)))
+                shade.append(bt.text(col, r, ch, mix(ramp(stops, col / max(1, bw - 1)), P["base"], 0.3)))
         runs += bt.blocks(0, r, row)
     d = "".join(f"M{x:.2f},{y:.2f}h{w:.2f}v{h2 + .05:.2f}h{-w:.2f}Z" for x, y, w, h2 in runs)
     bx0, by0 = bt.x, bt.row_y(0)
@@ -141,20 +141,18 @@ def header(cfg: dict, P: dict) -> str:
     begin = end
     while begin > 0 and top[begin - 1] == "\u2588":
         begin -= 1
-    pxs = 1.9
+    pxs = 1.32
     sw, sh = sprite.W * pxs, sprite.HEIGHT * pxs
     sx = bt.x + (begin + end + 1) / 2 * bt.cw - sw / 2
-    sy = by0 + 4 - sh
+    sy = by0 + 11 - sh
     hop = loop_move(c, "hop", 7.0, [(0, "translateY(0)"), (5.0, "translateY(0)"), (5.1, "translateY(-7px)"),
                                     (5.3, "translateY(0)"), (5.5, "translateY(-3px)"), (5.7, "translateY(0)"),
                                     (7.0, "translateY(0)")])
     cls = frames(c, "bl", [(0, 3.2), (1, .13), (0, .2), (1, .13), (0, 2.54)], 2)
-    for k in range(2):
-        c.style(f".{cls[k]}{{opacity:{1 if k == 0 else 0}}}")
-    c.add(f'<g class="{hop}">', f'<g class="{cls[0]}">')
-    sprite.render(c, P, sx, sy, pxs, sprite.OPEN_GRID)
-    c.add("</g>", f'<g class="{cls[1]}">')
-    sprite.render(c, P, sx, sy, pxs, sprite.SHUT_GRID)
+    c.add(f'<g class="{hop}">')
+    sprite.render(c, P, sx, sy, pxs)
+    c.add(f'<g class="{cls[1]}">')
+    sprite.render_lid(c, P, sx, sy, pxs)
     c.add("</g></g>")
 
     # letters go on top of her, so she looks like she is hiding behind them
@@ -220,7 +218,7 @@ def header(cfg: dict, P: dict) -> str:
 
 # ----------------------------------------------------------------- neofetch
 
-def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 4.0) -> None:
+def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 2.35) -> None:
     """The cat girl in a small box: she breathes, blinks, and says nya~."""
     T = 8.0
     c.add(f'<rect x="{bx:g}" y="{by:g}" width="{bw:g}" height="{bh:g}" rx="16" fill="{P["mantle"]}" '
@@ -232,12 +230,10 @@ def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px:
             ".bob{animation:bob 4.6s ease-in-out infinite}", key="bob")
 
     cls = frames(c, "ck", [(0, 3.6), (1, .12), (0, .2), (1, .12), (0, 3.96)], 2)
-    for k in range(2):
-        c.style(f".{cls[k]}{{opacity:{1 if k == 0 else 0}}}")
-    c.add('<g class="bob">', f'<g class="{cls[0]}">')
-    sprite.render(c, P, sx, sy, px, sprite.OPEN_GRID)
-    c.add("</g>", f'<g class="{cls[1]}">')
-    sprite.render(c, P, sx, sy, px, sprite.SHUT_GRID)
+    c.add('<g class="bob">')
+    sprite.render(c, P, sx, sy, px)
+    c.add(f'<g class="{cls[1]}">')
+    sprite.render_lid(c, P, sx, sy, px)
     c.add("</g></g>")
 
     # a heart drifts up, then nya~ pops out in the corner
@@ -323,7 +319,7 @@ def info_lines(cfg: dict, s: dict) -> list:
         widths[0] += n - sum(widths)
         out = [t.markup(col, row, key("languages"))[0]]
         x = 1
-        for (_, _), wdt, accent in zip(langs, widths, ["fg", "fg2", "mute", "fg3"]):
+        for (_, _), wdt, accent in zip(langs, widths, ["accent", "fg2", "mute", "fg3"]):
             out.append(t.text(col + 10 + x, row, "\u2588" * wdt, accent))
             x += wdt
         return "".join(out)
@@ -331,7 +327,7 @@ def info_lines(cfg: dict, s: dict) -> list:
     def legend(t: Term, col: float, row: float, langs=langs):
         tot = sum(v for _, v in langs)
         m = " ".join(f"[{a}]\u25cf[/] {name} [overlay1]{v / tot * 100:.0f}%[/]"
-                     for (name, v), a in zip(langs[:4], ["fg", "fg2", "mute", "fg3"]))
+                     for (name, v), a in zip(langs[:4], ["accent", "fg2", "mute", "fg3"]))
         return t.markup(col + 11, row, m)[0]
 
     if langs:
@@ -341,7 +337,7 @@ def info_lines(cfg: dict, s: dict) -> list:
 
     def palette(t: Term, col: float, row: float):
         out = []
-        for i, accent in enumerate(["fg", "fg2", "mute", "fg3", "fg2", "mute", "accent", "overlay1"]):
+        for i, accent in enumerate(["accent", "accent2", "fg2", "mute", "fg3", "overlay0", "fg", "surface2"]):
             out.append(t.text(col + i * 4, row, "\u2588\u2588\u2588", accent))
         return "".join(out)
 
@@ -355,29 +351,11 @@ MONTHS = ["1\u6708", "2\u6708", "3\u6708", "4\u6708", "5\u6708", "6\u6708",
           "7\u6708", "8\u6708", "9\u6708", "10\u6708", "11\u6708", "12\u6708"]
 
 
-def dither(c: Canvas, P: dict) -> None:
-    """Fills that read like the shade characters, built from 2 px dots on a 3 px grid."""
-    h = P["heat"]
-    t = 1 / 3
-    q = t / 2
-
-    def pat(ident, back, front, squares):
-        dots = "".join(f'<rect x="{x * q:.4f}" y="{y * q:.4f}" width="{q:.4f}" height="{q:.4f}" fill="{front}"/>'
-                       for x, y in squares)
-        c.define(ident, f'<pattern id="{ident}" width="{t:.4f}" height="{t:.4f}" '
-                        f'patternContentUnits="objectBoundingBox"><rect width="{t:.4f}" height="{t:.4f}" '
-                        f'fill="{back}"/>{dots}</pattern>')
-
-    pat("d1", h[0], h[2], [(0, 0)])
-    pat("d2", h[1], h[3], [(0, 0), (1, 1)])
-    pat("d3", h[2], h[4], [(0, 0), (1, 0), (0, 1)])
-
-
 def day_cell(P: dict, x: float, y: float, size: float, level: int) -> str:
     if level == 0:  # a quiet day is just a dot
-        return f'<circle cx="{x + size / 2:g}" cy="{y + size / 2:g}" r="1.4" fill="{P["surface2"]}"/>'
-    fill = P["heat"][4] if level == 4 else f"url(#d{level})"
-    return f'<rect x="{x:g}" y="{y:g}" width="{size:g}" height="{size:g}" rx="1.5" fill="{fill}"/>'
+        return f'<circle cx="{x + size / 2:g}" cy="{y + size / 2:g}" r="1.6" fill="{P["surface2"]}"/>'
+    return (f'<rect x="{x:g}" y="{y:g}" width="{size:g}" height="{size:g}" rx="2" '
+            f'fill="{P["heat"][level]}"/>')
 
 
 def activity(cfg: dict, P: dict, s: dict) -> str:
@@ -391,7 +369,6 @@ def activity(cfg: dict, P: dict, s: dict) -> str:
     H = y_sum + line + 18 + M
     c = Canvas(W, H)
     ox, oy = window(c, P, H, "~/activity")
-    dither(c, P)
     t = Term(c, P, ox, oy, size=14, lh=1.5)
     c.add(t.markup(0, 0, prompt(cfg) + "git log --graph --all")[0])
 
@@ -468,21 +445,22 @@ def footer(cfg: dict, P: dict) -> str:
     t = Term(c, P, ox, oy, size=14, lh=1.45)
     c.add(t.markup(0, 0, prompt(cfg) + "exit")[0])
 
-    pxf = 1.4
+    pxf = 1.15
     sfw = sprite.W * pxf
-    fx = ox + 6
+    fx = ox + 4
     fy = oy + line * 2.4
-    sprite.render(c, P, fx, fy, pxf, sprite.SHUT_GRID)
+    sprite.render(c, P, fx, fy, pxf)
+    sprite.render_lid(c, P, fx, fy, pxf)
 
     cls = frames(c, "zz", [(i, 0.75) for i in range(len(art.SLEEP_Z))], len(art.SLEEP_Z))
-    zt = Term(c, P, fx + sfw - 6, fy + 12, size=13, lh=1.4)
+    zt = Term(c, P, fx + sfw + 4, fy + 2, size=13, lh=1.4)
     for k, frame in enumerate(art.SLEEP_Z):
         c.style(f".{cls[k]}{{opacity:{1 if k == 2 else 0}}}")
         z = "".join(zt.text(col, row, ch, ["accent", "fg2", "mute"][i % 3], bold=True)
                     for i, (row, col, ch) in enumerate(frame))
         c.add(f'<g class="{cls[k]}">{z}</g>')
 
-    tx = fx + sfw + 46
+    tx = fx + sfw + 34
     txt = Term(c, P, tx, fy + 2, size=14, lh=1.5)
     for r, m in enumerate(cfg["footer"]["lines"]):
         c.add(txt.markup(0, r * 1.35, m.format(date=date.today().isoformat()))[0])
