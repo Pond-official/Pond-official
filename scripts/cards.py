@@ -37,7 +37,7 @@ def window(c: Canvas, P: dict, h: float, title: str) -> tuple[float, float]:
         f'<rect x="{x + .5}" y="{y + .5}" width="{w - 1}" height="{wh - 1}" rx="11.5" fill="none" '
         f'stroke="{P["surface0"]}"/>',
     )
-    for i, key in enumerate(("sakura", "gold", "plum")):
+    for i, key in enumerate(("accent", "fg", "mute")):
         c.add(f'<circle cx="{x + 20 + i * 20}" cy="{y + BAR_H / 2}" r="6" fill="{P[key]}"/>')
     t = Term(c, P, 0, y + (BAR_H - 12.5 * 1.4) / 2, size=12.5, lh=1.4)
     t.x = x + (w - cells(title) * t.cw) / 2
@@ -47,7 +47,7 @@ def window(c: Canvas, P: dict, h: float, title: str) -> tuple[float, float]:
 
 def prompt(cfg: dict) -> str:
     user = cfg["profile"]["user"]
-    return f"[sakura b]{user}[/][overlay1]@[/][gold b]dmu[/] [sky b]~[/] [overlay0]\u276f[/] "
+    return f"[accent b]{user}[/][overlay1]@[/][fg b]dmu[/] [fg2 b]~[/] [overlay0]\u276f[/] "
 
 
 def loop_move(c: Canvas, name: str, total: float, points: list[tuple[float, str]],
@@ -77,7 +77,7 @@ def fireflies(c: Canvas, P: dict, n: int, x0: float, y0: float, x1: float, y1: f
             f"100%{{transform:translate({sway:.0f}px,{y0 - y1:.0f}px);opacity:0}}}}"
             f".{name}{{animation:{name} {dur:.1f}s ease-in-out {delay:.1f}s infinite}}"
         )
-        color = P["sakura2"] if rnd.random() < 0.6 else P["gold2"]
+        color = P["accent2"] if rnd.random() < 0.6 else P["fg2"]
         out.append(f'<g class="{name}"><circle cx="{sx:.0f}" cy="{y1:.0f}" r="{r:.1f}" fill="{color}"/></g>')
     return "".join(out)
 
@@ -88,7 +88,7 @@ def cursor(c: Canvas, P: dict, t: Term, col: float, row: float, cls: str = "") -
     y = t.row_y(row) + (t.lh - t.size * 1.3) / 2
     k = f' class="{cls}"' if cls else ""
     return (f'<g{k}><rect class="blink" x="{x:.1f}" y="{y:.1f}" width="{t.cw:.1f}" '
-            f'height="{t.size * 1.3:.1f}" rx="1.5" fill="{P["sakura"]}" opacity=".85"/></g>')
+            f'height="{t.size * 1.3:.1f}" rx="1.5" fill="{P["accent"]}" opacity=".85"/></g>')
 
 
 # ------------------------------------------------------------------- header
@@ -120,7 +120,7 @@ def header(cfg: dict, P: dict) -> str:
     # ---- banner: solid blocks in one path, one gradient, no seams
     bt = Term(c, P, 0, y_banner, size=size, lh=lh)
     bt.x = (W - bw * bt.cw) / 2
-    stops = [P["sakura2"], P["sky"], P["plum"], P["gold2"]]
+    stops = [P["fg3"], P["mute"], P["fg2"], P["fg"]]
     grad = c.uid("bg")
     c.define(grad, f'<linearGradient id="{grad}" gradientUnits="userSpaceOnUse" x1="{bt.x:.0f}" '
                    f'x2="{bt.x + bw * bt.cw:.0f}" y1="0" y2="0">' +
@@ -141,7 +141,7 @@ def header(cfg: dict, P: dict) -> str:
     begin = end
     while begin > 0 and top[begin - 1] == "\u2588":
         begin -= 1
-    pxs = 3.8
+    pxs = 1.9
     sw, sh = sprite.W * pxs, sprite.HEIGHT * pxs
     sx = bt.x + (begin + end + 1) / 2 * bt.cw - sw / 2
     sy = by0 + 4 - sh
@@ -220,7 +220,7 @@ def header(cfg: dict, P: dict) -> str:
 
 # ----------------------------------------------------------------- neofetch
 
-def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 7.2) -> None:
+def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 4.0) -> None:
     """The cat girl in a small box: she breathes, blinks, and says nya~."""
     T = 8.0
     c.add(f'<rect x="{bx:g}" y="{by:g}" width="{bw:g}" height="{bh:g}" rx="16" fill="{P["mantle"]}" '
@@ -242,7 +242,7 @@ def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px:
 
     # a heart drifts up, then nya~ pops out in the corner
     clock = Clock(c, T, "cn")
-    heart = glyph(c, "\u2661", bx + bw - 34, by + 38, 13, True, (), "fill=\"" + P["sakura"] + "\"")
+    heart = glyph(c, "\u2661", bx + bw - 34, by + 38, 13, True, (), "fill=\"" + P["accent"] + "\"")
     drift = loop_move(c, "clove", T, [(0, "translateY(10px)"), (4.6, "translateY(10px)"),
                                       (6.4, "translateY(-12px)"), (T, "translateY(-12px)")], "linear")
     c.add(f'<g class="{clock.show(4.6, 6.6)}"><g class="{drift}">{heart}</g></g>')
@@ -254,7 +254,7 @@ def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px:
         nm = loop_move(c, f"ny{i}", T, [(0, "translateY(0)"), (t0, "translateY(0)"),
                                         (t0 + .1, "translateY(-4px)"), (t0 + .26, "translateY(0)"), (T, "translateY(0)")])
         c.add(f'<g class="{clock.show(4.9, 6.6)}"><g class="{nm}">'
-              f'{glyph(c, ch, mx + i * ms * 0.6, by + bh - 22, ms, True, (), "fill=\"" + P["sakura2"] + "\"")}'
+              f'{glyph(c, ch, mx + i * ms * 0.6, by + bh - 22, ms, True, (), "fill=\"" + P["accent2"] + "\"")}'
               f'</g></g>')
 
 
@@ -295,18 +295,18 @@ def neofetch(cfg: dict, P: dict, s: dict) -> str:
 
 def info_lines(cfg: dict, s: dict) -> list:
     login = cfg["profile"]["user"]
-    key = lambda n: f"[plum b]{n:<10}[/]"  # noqa: E731
-    num = lambda v: f"[gold b]{v:,}[/]"  # noqa: E731
+    key = lambda n: f"[mute b]{n:<10}[/]"  # noqa: E731
+    num = lambda v: f"[fg b]{v:,}[/]"  # noqa: E731
     dot = " [overlay0]\u00b7[/] "
     lines: list = [
-        f"[sakura b]{login}[/][overlay1]@[/][plum b]github[/]",
+        f"[accent b]{login}[/][overlay1]@[/][mute b]github[/]",
         "[overlay0]" + "\u2500" * 13 + "[/]",
     ]
     for name, value in cfg["neofetch"]["about"]:
         lines.append(key(name) + value)
     lines += [
         key("uptime") + _uptime(s["days"]),
-        key("repos") + num(s["repos"]) + " public" + dot + f"[gold2 b]\u2605[/] {num(s['stars'])}",
+        key("repos") + num(s["repos"]) + " public" + dot + f"[fg2 b]\u2605[/] {num(s['stars'])}",
         key("commits") + num(s["commits"]) + " in the last year",
         key("prs") + num(s["prs"]) + dot + "issues " + num(s["issues"]),
         key("followers") + num(s["followers"]) + dot + "following " + num(s["following"]),
@@ -323,7 +323,7 @@ def info_lines(cfg: dict, s: dict) -> list:
         widths[0] += n - sum(widths)
         out = [t.markup(col, row, key("languages"))[0]]
         x = 1
-        for (_, _), wdt, accent in zip(langs, widths, ["sakura", "sky", "plum", "gold"]):
+        for (_, _), wdt, accent in zip(langs, widths, ["fg", "fg2", "mute", "fg3"]):
             out.append(t.text(col + 10 + x, row, "\u2588" * wdt, accent))
             x += wdt
         return "".join(out)
@@ -331,7 +331,7 @@ def info_lines(cfg: dict, s: dict) -> list:
     def legend(t: Term, col: float, row: float, langs=langs):
         tot = sum(v for _, v in langs)
         m = " ".join(f"[{a}]\u25cf[/] {name} [overlay1]{v / tot * 100:.0f}%[/]"
-                     for (name, v), a in zip(langs[:4], ["sakura", "sky", "plum", "gold"]))
+                     for (name, v), a in zip(langs[:4], ["fg", "fg2", "mute", "fg3"]))
         return t.markup(col + 11, row, m)[0]
 
     if langs:
@@ -341,7 +341,7 @@ def info_lines(cfg: dict, s: dict) -> list:
 
     def palette(t: Term, col: float, row: float):
         out = []
-        for i, accent in enumerate(["sakura", "plum", "sky", "gold", "sakura2", "plum2", "gold2", "overlay1"]):
+        for i, accent in enumerate(["fg", "fg2", "mute", "fg3", "fg2", "mute", "accent", "overlay1"]):
             out.append(t.text(col + i * 4, row, "\u2588\u2588\u2588", accent))
         return "".join(out)
 
@@ -419,13 +419,13 @@ def activity(cfg: dict, P: dict, s: dict) -> str:
             body.append(day_cell(P, x, round(y_cells + wd * pitch), cell, level))
         c.add(f'<g>{"".join(body)}'
               f'<rect x="{x - 1}" y="{y_cells - 1}" width="{pitch}" height="{7 * pitch}" rx="2" '
-              f'fill="{P["sakura2"]}" style="animation:glow {nweeks * step:.2f}s linear infinite;'
+              f'fill="{P["accent2"]}" style="animation:glow {nweeks * step:.2f}s linear infinite;'
               f'animation-delay:-{wi * step:.2f}s"/></g>')
 
     bt = Term(c, P, ox, y_sum, size=14, lh=1.5)
     streak = s["current"]
-    c.add(bt.markup(0, 0, f"[sakura b]{s['contributions']:,}[/] contributions in the last year [overlay0]\u00b7[/] "
-                          f"streak [gold b]{streak}[/] day{'s' if streak != 1 else ''}")[0])
+    c.add(bt.markup(0, 0, f"[accent b]{s['contributions']:,}[/] contributions in the last year [overlay0]\u00b7[/] "
+                          f"streak [fg b]{streak}[/] day{'s' if streak != 1 else ''}")[0])
 
     # legend, right-aligned
     right = W - M - PAD
@@ -468,7 +468,7 @@ def footer(cfg: dict, P: dict) -> str:
     t = Term(c, P, ox, oy, size=14, lh=1.45)
     c.add(t.markup(0, 0, prompt(cfg) + "exit")[0])
 
-    pxf = 3.2
+    pxf = 1.4
     sfw = sprite.W * pxf
     fx = ox + 6
     fy = oy + line * 2.4
@@ -478,7 +478,7 @@ def footer(cfg: dict, P: dict) -> str:
     zt = Term(c, P, fx + sfw - 6, fy + 12, size=13, lh=1.4)
     for k, frame in enumerate(art.SLEEP_Z):
         c.style(f".{cls[k]}{{opacity:{1 if k == 2 else 0}}}")
-        z = "".join(zt.text(col, row, ch, ["sakura", "sky", "plum"][i % 3], bold=True)
+        z = "".join(zt.text(col, row, ch, ["accent", "fg2", "mute"][i % 3], bold=True)
                     for i, (row, col, ch) in enumerate(frame))
         c.add(f'<g class="{cls[k]}">{z}</g>')
 

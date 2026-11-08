@@ -4,8 +4,8 @@
 #  改完这个文件并提交，GitHub Actions 会自动重画 assets/ 与 profile/ 里的
 #  所有图片（约一分钟）。数据卡片每天也会自己更新一次。
 #
-#  上色写法：[sakura]粉色[/]   [gold b]金色粗体[/]   要显示 [ 本身就写 [[
-#  可用颜色：sakura sakura2 plum plum2 gold gold2 sky
+#  上色写法：[fg]深色[/]   [mute b]灰色粗体[/]   要显示 [ 本身就写 [[
+#  可用颜色：fg fg2 fg3 mute accent accent2
 #            text subtext0 overlay1 overlay0 surface0 surface2
 # ───────────────────────────────────────────────────────────────────────
 
@@ -20,16 +20,16 @@ title = "pond@dmu: ~ — zsh"
 alt = "pond@dmu terminal banner"
 max_size = 28
 last_login = "Last login: {date} on ttys001"
-subtitle = "[overlay1]大连医科大学[/] [overlay0]·[/] [sakura]E大医[/] [overlay0]·[/] [gold b]Hide yourself in the dark[/]"
+subtitle = "[overlay1]大连医科大学[/] [overlay0]·[/] [fg]E大医[/] [overlay0]·[/] [mute b]Hide yourself in the dark[/]"
 
 # 下面几条命令会轮流「打字」出来，output 是命令的输出（可以多行）
 [[header.commands]]
 cmd = "whoami"
-output = ["Pond [overlay0]·[/] 大连医科大学 [overlay0]·[/] [sakura]TypeScript / Python[/]"]
+output = ["Pond [overlay0]·[/] 大连医科大学 [overlay0]·[/] [fg]TypeScript / Python[/]"]
 
 [[header.commands]]
 cmd = "cat ~/now.md"
-output = ["[gold]building[/] E大医 — 教务查询 [overlay0]+[/] 上课提醒", "[overlay1]# 一个想帮同学少点几下的小工具[/]"]
+output = ["[fg]building[/] E大医 — 教务查询 [overlay0]+[/] 上课提醒", "[overlay1]# 一个想帮同学少点几下的小工具[/]"]
 
 [[header.commands]]
 cmd = 'echo "$MOOD"'
@@ -45,7 +45,7 @@ about = [
   ["name", "Pond"],
   ["base", "Dalian Medical University [overlay0]·[/] 大连"],
   ["stack", "TypeScript [overlay0]·[/] Python [overlay0]·[/] Web"],
-  ["now", "[sakura]E大医[/] [overlay1]教务查询 + 上课提醒[/]"],
+  ["now", "[fg]E大医[/] [overlay1]教务查询 + 上课提醒[/]"],
   ["mail", "Pond_official@petalmail.com"],
 ]
 # 统计语言占比时跳过的仓库（主页自己的生成脚本不算）
@@ -54,11 +54,11 @@ exclude_repos = ["Pond-official"]
 # ── 技能（ls 出来的「文件」，第二项是颜色）────────────────────────────────
 [stack]
 files = [
-  ["app.ts", "sakura"],
-  ["api.ts", "sky"],
-  ["query.py", "gold"],
-  ["index.html", "sakura2"],
-  ["style.css", "plum"],
+  ["app.ts", "fg"],
+  ["api.ts", "fg2"],
+  ["query.py", "mute"],
+  ["index.html", "accent"],
+  ["style.css", "fg2"],
   ["build.sh", "overlay1"],
 ]
 
@@ -67,7 +67,7 @@ files = [
 title = "logout"
 alt = "谢谢光临 · see you next time"
 lines = [
-  "[sakura b]谢谢光临[/]  see you next time",
+  "[accent b]谢谢光临[/]  see you next time",
   "Hide yourself in the dark [overlay1]·[/] but leave a light on",
   "[overlay0]# updated {date} · drawn by python3[/]",
 ]
@@ -77,16 +77,16 @@ lines = [
 name = "edayi"
 label = "project"
 value = "E大医"
-color = "sakura"
+color = "accent"
 
 [[badges]]
 name = "agreement"
 label = "agreement"
 value = "用户协议"
-color = "gold"
+color = "fg"
 
 [[badges]]
 name = "dmu"
 label = "base"
 value = "DMU · 大连"
-color = "sky"
+color = "fg2"
