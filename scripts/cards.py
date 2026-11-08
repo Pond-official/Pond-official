@@ -141,19 +141,18 @@ def header(cfg: dict, P: dict) -> str:
     begin = end
     while begin > 0 and top[begin - 1] == "\u2588":
         begin -= 1
-    pxs = 1.7
-    sw, sh = sprite.W * pxs, sprite.HEIGHT * pxs
+    avail = by0 - (M + BAR_H) - 10          # the room above the word
+    cs = min(size * 0.55, (avail + 14) / (sprite.BODY * sprite.LH))
+    sw = sprite.COLS * cs * 0.6
     sx = bt.x + (begin + end + 1) / 2 * bt.cw - sw / 2
-    sy = by0 + 2 - 43 * pxs   # her face clears the letters, her chest hides behind them
+    sy = by0 + 17 - sprite.BODY * cs * sprite.LH  # the chin tucks behind the word
     hop = loop_move(c, "hop", 7.0, [(0, "translateY(0)"), (5.0, "translateY(0)"), (5.1, "translateY(-7px)"),
                                     (5.3, "translateY(0)"), (5.5, "translateY(-3px)"), (5.7, "translateY(0)"),
                                     (7.0, "translateY(0)")])
     cls = frames(c, "bl", [(0, 3.2), (1, .13), (0, .2), (1, .13), (0, 2.54)], 2)
     c.add(f'<g class="{hop}">')
-    sprite.render(c, P, sx, sy, pxs)
-    c.add(f'<g class="{cls[1]}">')
-    sprite.render_lid(c, P, sx, sy, pxs)
-    c.add("</g></g>")
+    sprite.render(c, P, sx, sy, cs, blink=cls, body=False)
+    c.add("</g>")
 
     # letters go on top of her, so she looks like she is hiding behind them
     c.add("".join(shade), f'<path d="{d}" fill="url(#{grad})"/>')
@@ -218,12 +217,12 @@ def header(cfg: dict, P: dict) -> str:
 
 # ----------------------------------------------------------------- neofetch
 
-def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 2.75) -> None:
+def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 14.0) -> None:
     """Miku in a small box: a portrait disc, a breath, a blink, and a nya~."""
     T = 8.0
     c.add(f'<rect x="{bx:g}" y="{by:g}" width="{bw:g}" height="{bh:g}" rx="16" fill="{P["mantle"]}" '
           f'stroke="{P["surface0"]}"/>')
-    sw, sh = sprite.W * px, sprite.HEIGHT * px
+    sw, sh = sprite.measure(px)
     sx = bx + (bw - sw) / 2
     sy = by + (bh - sh) / 2 - 2
 
@@ -242,10 +241,8 @@ def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px:
 
     cls = frames(c, "ck", [(0, 3.6), (1, .12), (0, .2), (1, .12), (0, 3.96)], 2)
     c.add('<g class="bob">')
-    sprite.render(c, P, sx, sy, px)
-    c.add(f'<g class="{cls[1]}">')
-    sprite.render_lid(c, P, sx, sy, px)
-    c.add("</g></g>")
+    sprite.render(c, P, sx, sy, px, blink=cls)
+    c.add("</g>")
 
     # a heart drifts up, then nya~ pops out in the corner
     clock = Clock(c, T, "cn")
@@ -456,12 +453,11 @@ def footer(cfg: dict, P: dict) -> str:
     t = Term(c, P, ox, oy, size=14, lh=1.45)
     c.add(t.markup(0, 0, prompt(cfg) + "exit")[0])
 
-    pxf = 1.3
-    sfw = sprite.W * pxf
-    fx = ox + 4
-    fy = oy + line * 2.4
-    sprite.render(c, P, fx, fy, pxf)
-    sprite.render_lid(c, P, fx, fy, pxf)
+    pxf = 8.0
+    sfw, sfh = sprite.measure(pxf)
+    fx = ox + 8
+    fy = oy + line * 2.2
+    sprite.render(c, P, fx, fy, pxf, blink="shut")
 
     cls = frames(c, "zz", [(i, 0.75) for i in range(len(art.SLEEP_Z))], len(art.SLEEP_Z))
     zt = Term(c, P, fx + sfw + 4, fy + 2, size=13, lh=1.4)
