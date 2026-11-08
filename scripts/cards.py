@@ -217,7 +217,7 @@ def header(cfg: dict, P: dict) -> str:
 
 # ----------------------------------------------------------------- neofetch
 
-def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 19.0) -> None:
+def cat_card(c: Canvas, P: dict, bx: float, by: float, bw: float, bh: float, px: float = 17.0) -> None:
     """Miku in a small box: a portrait disc, a breath, a blink, and a nya~."""
     T = 8.0
     c.add(f'<rect x="{bx:g}" y="{by:g}" width="{bw:g}" height="{bh:g}" rx="16" fill="{P["mantle"]}" '

@@ -28,7 +28,7 @@ ROWS = [
 
 COLS = max(len(r) for r in ROWS)
 LINES = len(ROWS)
-LH = 1.3                       # line height, in em
+LH = 1.18                      # line height, in em: tight, like a text block
 EYE_ROW = 1                     # the row the eyes sit on
 BODY = 3                        # rows 0..2 are the head, the rest is the body
 
