@@ -78,7 +78,9 @@ def fireflies(c: Canvas, P: dict, n: int, x0: float, y0: float, x1: float, y1: f
             f".{name}{{animation:{name} {dur:.1f}s ease-in-out {delay:.1f}s infinite}}"
         )
         color = P["accent2"] if rnd.random() < 0.6 else P["fg2"]
-        out.append(f'<g class="{name}"><circle cx="{sx:.0f}" cy="{y1:.0f}" r="{r:.1f}" fill="{color}"/></g>')
+        # opacity="0" is the reduced-motion fallback: with animations off the
+        # dot must disappear, not sit there fully opaque.
+        out.append(f'<g class="{name}" opacity="0"><circle cx="{sx:.0f}" cy="{y1:.0f}" r="{r:.1f}" fill="{color}"/></g>')
     return "".join(out)
 
 
@@ -402,9 +404,12 @@ def activity(cfg: dict, P: dict, s: dict) -> str:
         for iso, level, _ in week:
             wd = (date.fromisoformat(iso).weekday() + 1) % 7
             body.append(day_cell(P, x, round(y_cells + wd * pitch), cell, level))
+        # opacity="0": the glow column must vanish when CSS animation is off
+        # (prefers-reduced-motion), otherwise it renders as a solid bar that
+        # covers the whole week. The running animation overrides this base.
         c.add(f'<g>{"".join(body)}'
               f'<rect x="{x - 1}" y="{y_cells - 1}" width="{pitch}" height="{7 * pitch}" rx="2" '
-              f'fill="{P["accent2"]}" style="animation:glow {nweeks * step:.2f}s linear infinite;'
+              f'fill="{P["accent2"]}" opacity="0" style="animation:glow {nweeks * step:.2f}s linear infinite;'
               f'animation-delay:-{wi * step:.2f}s"/></g>')
 
     bt = Term(c, P, ox, y_sum, size=14, lh=1.5)
